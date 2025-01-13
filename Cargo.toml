@@ -1,0 +1,10 @@
+[package]
+name = "brainfuck_rs"
+version = "0.1.0"
+edition = "2021"
+authors = ["Grzegorz Dziadkiewicz<grzegorz@dziadkiewicz.com>"]
+
+[dependencies]
+
+[dev-dependencies]
+assert2 = "0.3.15"
