@@ -62,48 +62,35 @@ enum Bracket {
     RBracket,
 }
 
+macro_rules! add {
+    ($u:ident,$s:ident) => {
+        if $s < 0 { $u - (-$s) as usize} else { $u + $s as usize}
+    };
+}
+
 fn after_matching_closing_bracket(insts: &Vec<char>, ins_ptr: usize, b: Bracket) -> usize {
-    match b {
-        Bracket::LBracket => {
-            let mut counter = 0;
-            let mut ptr = ins_ptr;
-            loop {
-                let c = insts.get(ptr);
-                match c {
-                    None => panic!("Unbalanced brackets(EOF)!"),
-                    Some('[') => counter += 1,
-                    Some(']') => counter -= 1,
-                    Some(_) => (),
-                }
-                if counter < 0 {
-                    panic!("Unbalanced brackets!")
-                }
-                if counter == 0 {
-                    return ptr;
-                }
-                ptr += 1;
-            }
+    let direction = match b {
+        Bracket::LBracket => 1,
+        Bracket::RBracket => -1,
+    };
+    
+    let mut counter: i32 = 0;
+    let mut ptr = ins_ptr;
+    loop {
+        let c = insts.get(ptr);
+        match c {
+            None => panic!("Unbalanced brackets(EOF)!"),
+            Some('[') => counter += direction,
+            Some(']') => counter -= direction,
+            Some(_) => (),
         }
-        Bracket::RBracket => {
-            let mut counter = 0;
-            let mut ptr = ins_ptr;
-            loop {
-                let c = insts.get(ptr);
-                match c {
-                    None => panic!("Unbalanced brackets(EOF)!"),
-                    Some(']') => counter += 1,
-                    Some('[') => counter -= 1,
-                    Some(_) => (),
-                }
-                if counter < 0 {
-                    panic!("Unbalanced brackets!")
-                }
-                if counter == 0 {
-                    return ptr;
-                }
-                ptr -= 1;
-            }
+        if counter < 0 {
+            panic!("Unbalanced brackets!")
         }
+        if counter == 0 {
+            return ptr;
+        }
+        ptr = add!(ptr, direction);
     }
 }
 
