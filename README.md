@@ -5,5 +5,5 @@ Inspired by https://www.codewars.com/kata/526156943dfe7ce06200063e
 
 
 TODO:
-*[ ] Add CLI
-*[ ] Add handling of whitespace
+* [ ] Add CLI
+* [ ] Add handling of whitespace
