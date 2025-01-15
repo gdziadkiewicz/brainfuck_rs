@@ -51,6 +51,7 @@ pub fn brain_luck(code: &str, input: Vec<u8>) -> Vec<u8> {
                     ins_ptr += 1;
                 }
             }
+            c if c.is_whitespace() => (),
             unexpected_char => panic!("Unexpected char {} occured in code.", unexpected_char),
         }
     }

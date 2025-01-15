@@ -4,6 +4,7 @@ Toy Brainf**k interpreter written in Rust
 Inspired by https://www.codewars.com/kata/526156943dfe7ce06200063e
 
 
-TODO:
+### TODO:
 * [ ] Add CLI
-* [ ] Add handling of whitespace
+* [x] Add handling of whitespace
+
