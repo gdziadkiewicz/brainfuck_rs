@@ -5,6 +5,7 @@ edition = "2021"
 authors = ["Grzegorz Dziadkiewicz<grzegorz@dziadkiewicz.com>"]
 
 [dependencies]
+clap = { version = "4.5.26", features = ["derive"] }
 
 [dev-dependencies]
 assert2 = "0.3.15"

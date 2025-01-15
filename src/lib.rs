@@ -51,7 +51,7 @@ pub fn brain_luck(code: &str, input: Vec<u8>) -> Vec<u8> {
                     ins_ptr += 1;
                 }
             }
-            c if c.is_whitespace() => (),
+            c if c.is_whitespace() => ins_ptr += 1,
             unexpected_char => panic!("Unexpected char {} occured in code.", unexpected_char),
         }
     }
@@ -69,7 +69,7 @@ macro_rules! add {
     };
 }
 
-fn after_matching_closing_bracket(insts: &Vec<char>, ins_ptr: usize, b: Bracket) -> usize {
+fn after_matching_closing_bracket(insts: &[char], ins_ptr: usize, b: Bracket) -> usize {
     let direction = match b {
         Bracket::LBracket => 1,
         Bracket::RBracket => -1,
