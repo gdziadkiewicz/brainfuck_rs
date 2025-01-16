@@ -19,11 +19,7 @@ struct Args {
 fn main() -> Result<(), Box<dyn Error>> {
     let args = Args::parse();
     let code = fs::read_to_string(&args.code)?;
-    let input = args
-        .input
-        .as_ref()
-        .map(fs::read)
-        .unwrap_or(Ok(vec![]))?;
+    let input = args.input.as_ref().map(fs::read).unwrap_or(Ok(vec![]))?;
     let output = brain_luck(&code, input);
     println!("{}", String::from_utf8(output)?);
     Ok(())

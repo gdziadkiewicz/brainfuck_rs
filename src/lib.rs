@@ -65,7 +65,11 @@ enum Bracket {
 
 macro_rules! add {
     ($u:ident,$s:ident) => {
-        if $s < 0 { $u - (-$s) as usize} else { $u + $s as usize}
+        if $s < 0 {
+            $u - (-$s) as usize
+        } else {
+            $u + $s as usize
+        }
     };
 }
 
@@ -74,7 +78,7 @@ fn after_matching_closing_bracket(insts: &[char], ins_ptr: usize, b: Bracket) ->
         Bracket::LBracket => 1,
         Bracket::RBracket => -1,
     };
-    
+
     let mut counter: i32 = 0;
     let mut ptr = ins_ptr;
     loop {
@@ -103,13 +107,18 @@ mod tests {
     #[test]
     fn echo_until_byte_255_encountered() {
         // Echo until byte 255 encountered
-        assert!(String::from_utf8(brain_luck(",+[-.,+]", ez_vec("Codewars", 255))).unwrap() == "Codewars");
+        assert!(
+            String::from_utf8(brain_luck(",+[-.,+]", ez_vec("Codewars", 255))).unwrap()
+                == "Codewars"
+        );
     }
 
     #[test]
     fn echo_until_byte_0_encountered() {
         // Echo until byte 0 encountered
-        assert!(String::from_utf8(brain_luck(",[.[-],]", ez_vec("Codewars", 0))).unwrap() == "Codewars");
+        assert!(
+            String::from_utf8(brain_luck(",[.[-],]", ez_vec("Codewars", 0))).unwrap() == "Codewars"
+        );
     }
 
     #[test]
@@ -117,12 +126,12 @@ mod tests {
         // Multiply two numbers
         assert!(brain_luck(",>,<[>[->+>+<<]>>[-<<+>>]<<<-]>>.", vec![8, 9]) == vec![72]);
     }
-    
+
     // Takes a static string and a terminating byte and returns an owned Vec<u8> for convenience
-    // Without it, character-based tests are a pain   
+    // Without it, character-based tests are a pain
     fn ez_vec(s: &str, i: u8) -> Vec<u8> {
-      let mut v = s.to_string().into_bytes();
-      v.push(i);
-      v
-    }   
+        let mut v = s.to_string().into_bytes();
+        v.push(i);
+        v
+    }
 }
