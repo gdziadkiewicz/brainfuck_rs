@@ -39,11 +39,7 @@ pub fn brain_luck(code: &str, input: Vec<u8>) -> Result<Vec<u8>, BrainLuckError>
             '+' => memory[mem_ptr] = memory[mem_ptr].wrapping_add(1),
             '-' => memory[mem_ptr] = memory[mem_ptr].wrapping_sub(1),
             '.' => output.push(memory[mem_ptr]),
-            ',' => {
-                memory[mem_ptr] = *input
-                    .next()
-                    .ok_or(BrainLuckError::UnexpectedEndOfInput)?
-            }
+            ',' => memory[mem_ptr] = *input.next().ok_or(BrainLuckError::UnexpectedEndOfInput)?,
             '[' => {
                 if memory[mem_ptr] == 0 {
                     ins_ptr = matching_closing_bracket_ptr(&insts, ins_ptr, Bracket::LBracket)?;
