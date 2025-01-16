@@ -21,6 +21,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     let code = fs::read_to_string(&args.code)?;
     let input = args.input.as_ref().map(fs::read).unwrap_or(Ok(vec![]))?;
     let output = brain_luck(&code, input);
-    println!("{}", String::from_utf8(output)?);
+    println!("{}", String::from_utf8(output?)?);
     Ok(())
 }
