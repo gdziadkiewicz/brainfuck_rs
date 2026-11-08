@@ -6,6 +6,7 @@ pub enum BrainLuckError {
     UnexpectedCharInCode(char),
     UnexpectedEndOfInput,
     UnbalancedBrackets,
+    MemoryPointerOutOfBounds,
 }
 
 impl std::fmt::Display for BrainLuckError {
@@ -16,6 +17,9 @@ impl std::fmt::Display for BrainLuckError {
             }
             BrainLuckError::UnexpectedEndOfInput => String::from("unexpected end of input."),
             BrainLuckError::UnbalancedBrackets => String::from("unbalanced brackets."),
+            BrainLuckError::MemoryPointerOutOfBounds => {
+                String::from("memory pointer out of bounds.")
+            }
         };
         f.write_str(&message)
     }
@@ -27,15 +31,23 @@ pub fn brain_luck(code: &str, input: Vec<u8>) -> Result<Vec<u8>, BrainLuckError>
     let mut output = Vec::new();
     let mut input = input.iter();
     let mut memory = vec![0u8; 1000];
-    let mut mem_ptr = 0;
+    let mut mem_ptr: usize = 0;
     let mut ins_ptr = 0;
 
     let insts = code.chars().collect::<Vec<_>>();
     while let Some(c) = insts.get(ins_ptr) {
         match c {
-            '>' => mem_ptr += 1,
-            '<' => mem_ptr -= 1,
-            //TODO: add handling for mem_ptr going out of bounds (or accessing memory outside of bounds)
+            '>' => {
+                if mem_ptr == memory.len() - 1 {
+                    return Err(BrainLuckError::MemoryPointerOutOfBounds);
+                }
+                mem_ptr += 1;
+            }
+            '<' => {
+                mem_ptr = mem_ptr
+                    .checked_sub(1)
+                    .ok_or(BrainLuckError::MemoryPointerOutOfBounds)?
+            }
             '+' => memory[mem_ptr] = memory[mem_ptr].wrapping_add(1),
             '-' => memory[mem_ptr] = memory[mem_ptr].wrapping_sub(1),
             '.' => output.push(memory[mem_ptr]),
@@ -113,27 +125,31 @@ mod tests {
     use assert2::assert;
 
     #[test]
-    fn echo_until_byte_255_encountered() {
+    fn echo_until_byte_255_encountered() -> Result<(), BrainLuckError> {
         // Echo until byte 255 encountered
-        assert!(
-            String::from_utf8(brain_luck(",+[-.,+]", ez_vec("Codewars", 255)).unwrap()).unwrap()
-                == "Codewars"
-        );
+        assert!(brain_luck(",+[-.,+]", [b"Codewars".as_slice(), &[255]].concat())? == b"Codewars");
+        Ok(())
     }
 
     #[test]
-    fn echo_until_byte_0_encountered() {
+    fn echo_until_byte_0_encountered() -> Result<(), BrainLuckError> {
         // Echo until byte 0 encountered
-        assert!(
-            String::from_utf8(brain_luck(",[.[-],]", ez_vec("Codewars", 0)).unwrap()).unwrap()
-                == "Codewars"
-        );
+        assert!(brain_luck(",[.[-],]", b"Codewars\0".to_vec())? == b"Codewars");
+        Ok(())
     }
 
     #[test]
-    fn multiply_two_numbers() {
+    fn multiply_two_numbers() -> Result<(), BrainLuckError> {
         // Multiply two numbers
-        assert!(brain_luck(",>,<[>[->+>+<<]>>[-<<+>>]<<<-]>>.", vec![8, 9]).unwrap() == vec![72]);
+        for a in (0u8..=15).chain([127, 255]) {
+            for b in (0u8..=15).chain([127, 255]) {
+                assert!(
+                    brain_luck(",>,<[>[->+>+<<]>>[-<<+>>]<<<-]>>.", vec![a, b])?
+                        == vec![a.wrapping_mul(b)]
+                );
+            }
+        }
+        Ok(())
     }
 
     #[test]
@@ -163,24 +179,44 @@ mod tests {
     }
 
     #[test]
-    fn add_two_numbers() {
+    fn add_two_numbers() -> Result<(), BrainLuckError> {
         // Add two numbers
-        assert!(brain_luck(",>,<[->+<]>.", vec![5, 10]).unwrap() == vec![15]);
+        for a in 0u8..=255 {
+            for b in 0u8..=255 {
+                assert!(brain_luck(",>,<[->+<]>.", vec![a, b])? == vec![a.wrapping_add(b)]);
+            }
+        }
+        Ok(())
     }
 
     #[test]
-    fn subtract_two_numbers() {
+    fn subtract_two_numbers() -> Result<(), BrainLuckError> {
         // Subtract two numbers
-        assert!(brain_luck(">,>,[<[->]<]>>[[<+>-]>>]<<<.", vec![10, 5]).unwrap() == vec![5]);
+        for a in (0u8..=15).chain([127, 255]) {
+            for b in (0u8..=15).chain([127, 255]) {
+                assert!(brain_luck(",>,[<->-]<.", vec![a, b])? == vec![a.wrapping_sub(b)]);
+            }
+        }
+        Ok(())
     }
 
     #[test]
-    fn matching_closing_bracket_ptr_balanced() {
+    fn memory_pointer_bounds() {
+        assert!(brain_luck("<", vec![]) == Err(BrainLuckError::MemoryPointerOutOfBounds));
+        assert!(
+            brain_luck(&">".repeat(1000), vec![]) == Err(BrainLuckError::MemoryPointerOutOfBounds)
+        );
+        assert!(brain_luck(&format!("{}+.", ">".repeat(999)), vec![]) == Ok(vec![1]));
+    }
+
+    #[test]
+    fn matching_closing_bracket_ptr_balanced() -> Result<(), BrainLuckError> {
         // Balanced brackets
         let code = "++[--[++]]";
         let insts = code.chars().collect::<Vec<_>>();
-        assert!(matching_closing_bracket_ptr(&insts, 2, Bracket::LBracket).unwrap() == 9);
-        assert!(matching_closing_bracket_ptr(&insts, 9, Bracket::RBracket).unwrap() == 2);
+        assert!(matching_closing_bracket_ptr(&insts, 2, Bracket::LBracket)? == 9);
+        assert!(matching_closing_bracket_ptr(&insts, 9, Bracket::RBracket)? == 2);
+        Ok(())
     }
 
     #[test]
